@@ -54,6 +54,7 @@ function getCodigoFromUrl() {
 }
 
 async function loadCard() {
+  async function loadCard() {
   const codigo = getCodigoFromUrl();
 
   if (!codigo) {
@@ -61,34 +62,46 @@ async function loadCard() {
     return;
   }
 
-  const { data, error } = await client
+  const { data: tarjeta, error: tarjetaError } = await client
     .from("tarjetas")
-    .select(
-      `codigo_tarjeta, estatus, saldo_actual, fecha_vencimiento_saldo, usuarios(nombre_completo)`
-    )
+    .select("codigo_tarjeta, estatus, saldo_actual, fecha_vencimiento_saldo, usuario_id")
     .eq("codigo_tarjeta", codigo)
     .single();
 
-  if (error || !data) {
-    console.error(error);
+  if (tarjetaError || !tarjeta) {
+    console.error("Error tarjeta:", tarjetaError);
     showError("Tarjeta no encontrada.");
     return;
   }
 
+  let nombreCliente = "-";
+
+  if (tarjeta.usuario_id) {
+    const { data: usuario, error: usuarioError } = await client
+      .from("usuarios")
+      .select("nombre_completo")
+      .eq("id", tarjeta.usuario_id)
+      .single();
+
+    if (!usuarioError && usuario) {
+      nombreCliente = usuario.nombre_completo || "-";
+    } else {
+      console.error("Error usuario:", usuarioError);
+    }
+  }
+
   document.getElementById("codigo_tarjeta").textContent =
-    data.codigo_tarjeta || "-";
-  document.getElementById("estatus").textContent = data.estatus || "-";
+    tarjeta.codigo_tarjeta || "-";
+  document.getElementById("estatus").textContent = tarjeta.estatus || "-";
   document.getElementById("saldo_actual").textContent = formatMoney(
-    data.saldo_actual
+    tarjeta.saldo_actual
   );
   document.getElementById("fecha_vencimiento_saldo").textContent =
-    formatDate(data.fecha_vencimiento_saldo);
-  document.getElementById("nombre_cliente").textContent =
-    data.usuarios?.nombre_completo || "-";
+    formatDate(tarjeta.fecha_vencimiento_saldo);
+  document.getElementById("nombre_cliente").textContent = nombreCliente;
 
   loadingEl.classList.add("hidden");
   errorEl.classList.add("hidden");
   contentEl.classList.remove("hidden");
 }
-
 loadCard();
