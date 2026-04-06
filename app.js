@@ -9,7 +9,9 @@ if (!SUPABASE_ANON_KEY) {
   );
 }
 if (!SUPABASE_ANON_KEY) {
-  alert("No se proporcionó publishable key. No se puede cargar la tarjeta.");
+  alert(
+    "No se proporcionó publishable key. No se puede cargar la tarjeta."
+  );
   throw new Error("Missing key");
 }
 localStorage.setItem("SUPABASE_ANON_KEY", SUPABASE_ANON_KEY);
@@ -41,6 +43,12 @@ function formatDate(value) {
 }
 
 function getCodigoFromUrl() {
+  // Preferimos query param porque Vercel en sitios estáticos da 404 con /HF001
+  const params = new URLSearchParams(window.location.search);
+  const card = params.get("card");
+  if (card) return card;
+
+  // fallback: última parte del path
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   return pathParts[pathParts.length - 1] || null;
 }
@@ -67,12 +75,14 @@ async function loadCard() {
     return;
   }
 
-  document.getElementById("codigo_tarjeta").textContent = data.codigo_tarjeta || "-";
+  document.getElementById("codigo_tarjeta").textContent =
+    data.codigo_tarjeta || "-";
   document.getElementById("estatus").textContent = data.estatus || "-";
-  document.getElementById("saldo_actual").textContent = formatMoney(data.saldo_actual);
-  document.getElementById("fecha_vencimiento_saldo").textContent = formatDate(
-    data.fecha_vencimiento_saldo
+  document.getElementById("saldo_actual").textContent = formatMoney(
+    data.saldo_actual
   );
+  document.getElementById("fecha_vencimiento_saldo").textContent =
+    formatDate(data.fecha_vencimiento_saldo);
   document.getElementById("nombre_cliente").textContent =
     data.usuarios?.nombre_completo || "-";
 
