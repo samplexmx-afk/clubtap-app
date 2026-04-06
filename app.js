@@ -1,19 +1,19 @@
 const SUPABASE_URL = "https://qmcgjabudzmvtefjgmfn.supabase.co";
 
-// Para evitar poner tu publishable key en el repo,
-// te la pedimos una vez y se guarda localmente (localStorage)
+// La key se pide una vez y se guarda localmente
 let SUPABASE_ANON_KEY = localStorage.getItem("SUPABASE_ANON_KEY");
+
 if (!SUPABASE_ANON_KEY) {
   SUPABASE_ANON_KEY = prompt(
     "Pega tu Supabase publishable key (se guardará localmente en este dispositivo)."
   );
 }
+
 if (!SUPABASE_ANON_KEY) {
-  alert(
-    "No se proporcionó publishable key. No se puede cargar la tarjeta."
-  );
+  alert("No se proporcionó publishable key. No se puede cargar la tarjeta.");
   throw new Error("Missing key");
 }
+
 localStorage.setItem("SUPABASE_ANON_KEY", SUPABASE_ANON_KEY);
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -43,17 +43,15 @@ function formatDate(value) {
 }
 
 function getCodigoFromUrl() {
-  // Preferimos query param porque Vercel en sitios estáticos da 404 con /HF001
   const params = new URLSearchParams(window.location.search);
   const card = params.get("card");
   if (card) return card;
 
-  // fallback: última parte del path
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   return pathParts[pathParts.length - 1] || null;
 }
 
-  async function loadCard() {
+async function loadCard() {
   const codigo = getCodigoFromUrl();
 
   if (!codigo) {
@@ -92,9 +90,7 @@ function getCodigoFromUrl() {
   document.getElementById("codigo_tarjeta").textContent =
     tarjeta.codigo_tarjeta || "-";
   document.getElementById("estatus").textContent = tarjeta.estatus || "-";
-  document.getElementById("saldo_actual").textContent = formatMoney(
-    tarjeta.saldo_actual
-  );
+  document.getElementById("saldo_actual").textContent = formatMoney(tarjeta.saldo_actual);
   document.getElementById("fecha_vencimiento_saldo").textContent =
     formatDate(tarjeta.fecha_vencimiento_saldo);
   document.getElementById("nombre_cliente").textContent = nombreCliente;
@@ -103,4 +99,5 @@ function getCodigoFromUrl() {
   errorEl.classList.add("hidden");
   contentEl.classList.remove("hidden");
 }
+
 loadCard();
