@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClubSB Card</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="badge">ClubSB</div>
+      <h1>Ficha de tarjeta</h1>
+      <p class="muted">Consulta rápida de saldo y estatus</p>
+
+      <div id="loading" class="state">Cargando tarjeta...</div>
+      <div id="error" class="state error hidden"></div>
+
+      <div id="content" class="hidden">
+        <div class="row">
+          <span class="label">Código</span>
+          <span id="codigo_tarjeta" class="value"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Estatus</span>
+          <span id="estatus" class="value status"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Saldo</span>
+          <span id="saldo_actual" class="value money"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Vence</span>
+          <span id="fecha_vencimiento_saldo" class="value"></span>
+        </div>
+
+        <div class="section">
+          <h2>Cliente</h2>
+          <div class="row">
+            <span class="label">Nombre</span>
+            <span id="nombre_cliente" class="value"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
