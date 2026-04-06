@@ -1,20 +1,7 @@
 const SUPABASE_URL = "https://qmcgjabudzmvtefjgmfn.supabase.co";
 
-// La key se pide una vez y se guarda localmente
-let SUPABASE_ANON_KEY = localStorage.getItem("SUPABASE_ANON_KEY");
-
-if (!SUPABASE_ANON_KEY) {
-  SUPABASE_ANON_KEY = prompt(
-    "Pega tu Supabase publishable key (se guardará localmente en este dispositivo)."
-  );
-}
-
-if (!SUPABASE_ANON_KEY) {
-  alert("No se proporcionó publishable key. No se puede cargar la tarjeta.");
-  throw new Error("Missing key");
-}
-
-localStorage.setItem("SUPABASE_ANON_KEY", SUPABASE_ANON_KEY);
+// Pega aquí tu anon/publishable key de Supabase
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtY2dqYWJ1ZHptdnRlZmpnbWZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MDIzODMsImV4cCI6MjA5MTA3ODM4M30.tzGY5hRrgb7HC6pprGi2qyWdo6CQcFRbo_o8RUpClt0";
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -52,52 +39,64 @@ function getCodigoFromUrl() {
 }
 
 async function loadCard() {
-  const codigo = getCodigoFromUrl();
+  try {
+    const codigo = getCodigoFromUrl();
 
-  if (!codigo) {
-    showError("No se encontró el código de tarjeta en la URL.");
-    return;
-  }
+    if (!codigo) {
+      showError("No se encontró el código de tarjeta en la URL.");
+      return;
+    }
 
-  const { data: tarjeta, error: tarjetaError } = await client
-    .from("tarjetas")
-    .select("codigo_tarjeta, estatus, saldo_actual, fecha_vencimiento_saldo, usuario_id")
-    .eq("codigo_tarjeta", codigo)
-    .single();
-
-  if (tarjetaError || !tarjeta) {
-    console.error("Error tarjeta:", tarjetaError);
-    showError("Tarjeta no encontrada.");
-    return;
-  }
-
-  let nombreCliente = "-";
-
-  if (tarjeta.usuario_id) {
-    const { data: usuario, error: usuarioError } = await client
-      .from("usuarios")
-      .select("nombre_completo")
-      .eq("id", tarjeta.usuario_id)
+    const { data: tarjeta, error: tarjetaError } = await client
+      .from("tarjetas")
+      .select("codigo_tarjeta, estatus, saldo_actual, fecha_vencimiento_saldo, usuario_id")
+      .eq("codigo_tarjeta", codigo)
       .single();
 
-    if (!usuarioError && usuario) {
-      nombreCliente = usuario.nombre_completo || "-";
-    } else {
-      console.error("Error usuario:", usuarioError);
+    if (tarjetaError || !tarjeta) {
+      console.error("Error tarjeta:", tarjetaError);
+      showError(
+        tarjetaError?.message
+          ? `Error tarjeta: ${tarjetaError.message}`
+          : "Tarjeta no encontrada."
+      );
+      return;
     }
+
+    let nombreCliente = "-";
+
+    if (tarjeta.usuario_id) {
+      const { data: usuario, error: usuarioError } = await client
+        .from("usuarios")
+        .select("nombre_completo")
+        .eq("id", tarjeta.usuario_id)
+        .single();
+
+      if (!usuarioError && usuario) {
+        nombreCliente = usuario.nombre_completo || "-";
+      } else if (usuarioError) {
+        console.error("Error usuario:", usuarioError);
+      }
+    }
+
+    document.getElementById("codigo_tarjeta").textContent =
+      tarjeta.codigo_tarjeta || "-";
+    document.getElementById("estatus").textContent =
+      tarjeta.estatus || "-";
+    document.getElementById("saldo_actual").textContent =
+      formatMoney(tarjeta.saldo_actual);
+    document.getElementById("fecha_vencimiento_saldo").textContent =
+      formatDate(tarjeta.fecha_vencimiento_saldo);
+    document.getElementById("nombre_cliente").textContent =
+      nombreCliente;
+
+    loadingEl.classList.add("hidden");
+    errorEl.classList.add("hidden");
+    contentEl.classList.remove("hidden");
+  } catch (err) {
+    console.error("Error general:", err);
+    showError(`Error general: ${err.message}`);
   }
-
-  document.getElementById("codigo_tarjeta").textContent =
-    tarjeta.codigo_tarjeta || "-";
-  document.getElementById("estatus").textContent = tarjeta.estatus || "-";
-  document.getElementById("saldo_actual").textContent = formatMoney(tarjeta.saldo_actual);
-  document.getElementById("fecha_vencimiento_saldo").textContent =
-    formatDate(tarjeta.fecha_vencimiento_saldo);
-  document.getElementById("nombre_cliente").textContent = nombreCliente;
-
-  loadingEl.classList.add("hidden");
-  errorEl.classList.add("hidden");
-  contentEl.classList.remove("hidden");
 }
 
 loadCard();
