@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caja ClubSB</title>
+  <link rel="stylesheet" href="caja.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <div class="badge">ClubSB</div>
+      <h1>Caja</h1>
+      <p class="muted">Consulta, recarga y descuento de saldo</p>
+
+      <div class="section">
+        <label for="codigoInput">Código de tarjeta</label>
+        <div class="search-row">
+          <input id="codigoInput" type="text" placeholder="Ej. HF001" />
+          <button id="buscarBtn">Consultar</button>
+        </div>
+      </div>
+
+      <div id="mensaje" class="message hidden"></div>
+
+      <div id="ficha" class="section hidden">
+        <h2>Ficha</h2>
+
+        <div class="row">
+          <span class="label">Código</span>
+          <span id="fichaCodigo" class="value">-</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Cliente</span>
+          <span id="fichaCliente" class="value">-</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Estatus</span>
+          <span id="fichaEstatus" class="value">-</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Saldo actual</span>
+          <span id="fichaSaldo" class="value money">-</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Vence</span>
+          <span id="fichaVence" class="value">-</span>
+        </div>
+      </div>
+
+      <div id="operacionBox" class="section hidden">
+        <h2>Operación</h2>
+
+        <label for="tipoOperacion">Tipo</label>
+        <select id="tipoOperacion">
+          <option value="recarga">Recarga</option>
+          <option value="consumo">Descuento</option>
+        </select>
+
+        <label for="montoInput">Monto</label>
+        <input id="montoInput" type="number" min="1" step="0.01" placeholder="Ej. 100" />
+
+        <label for="descripcionInput">Descripción</label>
+        <input id="descripcionInput" type="text" placeholder="Ej. Recarga en caja" />
+
+        <button id="guardarOperacionBtn" class="full">Guardar operación</button>
+      </div>
+
+      <div id="historialBox" class="section hidden">
+        <h2>Últimos movimientos</h2>
+        <div id="historialLista" class="history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="caja.js"></script>
+</body>
+</html>
