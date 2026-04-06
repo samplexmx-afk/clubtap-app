@@ -53,7 +53,6 @@ function getCodigoFromUrl() {
   return pathParts[pathParts.length - 1] || null;
 }
 
-async function loadCard() {
   async function loadCard() {
   const codigo = getCodigoFromUrl();
 
